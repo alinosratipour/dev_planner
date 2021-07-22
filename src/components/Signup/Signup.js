@@ -7,17 +7,15 @@ import * as yup from "yup";
 
 
 const userschema = yup.object().shape({
-    firstName: yup.string().required('First Name is required'),
-    lastName: yup.string().required("Last Name is required"),
-    city: yup.string().required(),
-    select: yup.string().required(),
-    email: yup.string().email("Email is not valid").required(),
-    password: yup.string().min(8).max(15).required(),
-    confirmPassword: yup.string().oneOf([yup.ref("password"),null],'Passwords must match')
+   firstName: yup.string().required('First Name is required'),
+   lastName: yup.string().required("Last Name is required"),
+   city: yup.string().required(),
+   select: yup.string().required(),
+   email: yup.string().email("Email is not valid").required(),
+   password: yup.string().min(8).max(15).required(),
+   confirmPassword: yup.string().oneOf([yup.ref("password"),null],'Passwords must match')
   
 });
-
-
 
 
 function Signup() {
@@ -30,6 +28,7 @@ function Signup() {
        alert(value);
     }
 
+    // bind usefrom and yup with yupresolver
    const { register, handleSubmit, formState:{ errors } } = useForm({
       resolver: yupResolver(userschema)
     });
