@@ -1,16 +1,17 @@
-import React from 'react'
+import React,{ useState } from 'react'
 import "./Signup.css";
 import image from '../img/cyf.png';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import {toast} from "react-toastify";
 
 
 const userschema = yup.object().shape({
    firstName: yup.string().required('First Name is required'),
    lastName: yup.string().required("Last Name is required"),
    city: yup.string().required(),
-   select: yup.string().required(),
+   classCode: yup.string().required(),
    email: yup.string().email("Email is not valid").required(),
    password: yup.string().min(8).max(15).required(),
    confirmPassword: yup.string().oneOf([yup.ref("password"),null],'Passwords must match')
@@ -18,24 +19,59 @@ const userschema = yup.object().shape({
 });
 
 
-function Signup() {
+const  Signup = ({setAuth})=> {
+    const [role, setRole] = useState("");
+   const [status, setStatus] = useState(true);
+  
 
-   const HandelClassMenu = (value) => {
-      alert(value);
+   const handelClassMenu = (value) => {
+      console.log(value);
     };
 
-    const HandelRoleMenu =(value) =>{
-       alert(value);
-    }
+   
+
+    const handleRoleMenu = (value) => {
+       value === "graduate" ? setStatus(false) : setStatus(true)
+       setRole(value);
+      console.log(status);
+  }
 
     // bind usefrom and yup with yupresolver
    const { register, handleSubmit, formState:{ errors } } = useForm({
       resolver: yupResolver(userschema)
     });
 
-    const onSubmit = data => {
-      console.log(data); 
+    const onSubmitForm =  async (data) => {
+      console.log(data)
+      try{
+         //const body = {data} 
+
+        const response = await fetch(`http://localhost:5000/auth/register`, {
+           method: "POST",
+           headers : {"Content-Type": "application/json" },
+           body: JSON.stringify(data)
+        });
+
+        const parseRes = await response.json();
+        if(parseRes.token){
+            localStorage.setItem("token", parseRes.token)
+            setAuth(true);
+            toast.success("You Are Registerd Successfully")
+        }else{
+           setAuth(false);
+           toast.error(parseRes)
+        }
+        
+        //console.log("test",parseRes);
+        
+      }catch(err){
+         console.error(err.message);
+      }
+         
     }
+
+
+
 
 
     return (
@@ -43,7 +79,7 @@ function Signup() {
 
          <div className="Signup-container">
          <img src={image} alt="cyf-logo" />
-             <form    onSubmit={handleSubmit(onSubmit)}>
+             <form    onSubmit={handleSubmit(onSubmitForm)}>
 
 
             
@@ -68,13 +104,14 @@ function Signup() {
                   <span className="details">Class</span>
                     
                     <select className="role"  name="studentClass" id="studentClass" required
-                       {...register("select")} 
-                       onChange={(e) => HandelClassMenu(e.target.value)}
+                       {...register("classCode")} 
+                       onChange={(e) => handelClassMenu(e.target.value)} disabled={status}
                       >
                        <option value="">--Please choose your Class--</option>
-                       <option value="class7">Class7</option>
-                       <option value="class6">Class6</option>
-                       <option value="class5">Class5</option>
+                           <option value="WMS01">WMS01</option>
+                           <option value="WMS02">WMS02</option>
+                           <option value="LDN06">LDN06</option>
+                           <option value="LDN07">LDN07</option>
                     </select>
                </div>
 
@@ -82,10 +119,10 @@ function Signup() {
                   <span className="details">Role</span>
                   <select  className="role" name="role" id="role" required 
                    {...register("role")} 
-                   onChange={(e) => HandelRoleMenu(e.target.value)}  
+                   onChange={(e) => handleRoleMenu(e.target.value)}  
                    >
                        <option value="">--Please choose your Role--</option>
-                       <option value="graduat">Graduate</option>
+                       <option value="graduate">Graduate</option>
                        <option value="mentor">Mentor</option>
                     
                     </select>

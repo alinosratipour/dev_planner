@@ -7,14 +7,12 @@ app.use(express.json()); // req.body
 app.use(core());
 
 
-//ROUTES
+// Dashboard Route
+app.use("/dashboard", require('./routes/dashboard'));
+
 
 // register and login routes
-
 app.use("/auth", require("./routes/jwtAuth"));
-
-
-
 
 
 app.listen(5000, () =>{
